@@ -9,16 +9,23 @@ from config import DEFAULT_EMBEDDING_MODEL, DEFAULT_PATH, DEFAULT_CHUNK_SIZE, DE
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-st.title("An immigration advisor chatbot 📚")
+st.title("FinQA Chatbot 🤖")
 
 if "list_of_models" not in st.session_state:
     st.session_state["list_of_models"] = get_list_of_models()
 
-selected_model = st.sidebar.selectbox("Select a model:", st.session_state["list_of_models"])
+# 选择嵌入模型
+selected_embedding_model = st.sidebar.selectbox("Select an embedding model:", st.session_state["list_of_models"])
 
-if st.session_state.get("ollama_model") != selected_model:
-    st.session_state["ollama_model"] = selected_model
-    st.session_state["llm"] = Ollama(model=selected_model)
+if st.session_state.get("embedding_model") != selected_embedding_model:
+    st.session_state["embedding_model"] = selected_embedding_model
+
+# 选择生成模型
+selected_llm_model = st.sidebar.selectbox("Select a LLM model:", st.session_state["list_of_models"])
+
+if st.session_state.get("ollama_model") != selected_llm_model:
+    st.session_state["ollama_model"] = selected_llm_model
+    st.session_state["llm"] = Ollama(model=selected_llm_model)
 
 folder_path = st.sidebar.text_input("Enter the folder path:", DEFAULT_PATH)
 
@@ -26,11 +33,11 @@ if folder_path:
     if not os.path.isdir(folder_path):
         st.error("The provided path is not a valid directory. Please enter a valid folder path.")
     else:
-        if st.sidebar.button("Load Immigration rules"):
+        if st.sidebar.button("Load FinQA data"):
             if "db" not in st.session_state:
                 with st.spinner("Creating embeddings and loading documents into Chroma..."):
                     try:
-                        st.session_state["db"] = load_documents_into_database(DEFAULT_EMBEDDING_MODEL, folder_path, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP)
+                        st.session_state["db"] = load_documents_into_database(selected_embedding_model, folder_path, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP)
                         st.info("Documents loaded into the database successfully!")
                         logging.info("Documents loaded into the database successfully")
                     except Exception as e:
