@@ -5,7 +5,9 @@ from langchain_core.prompts import ChatPromptTemplate, format_document
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 from langchain_core.messages import get_buffer_string
 from langchain.prompts.prompt import PromptTemplate
+from config import DEFAULT_NUM_RETRIEVED_DOCS, CONDENSE_QUESTION_PROMPT, ANSWER_PROMPT, DEFAULT_DOCUMENT_PROMPT
 
+<<<<<<< HEAD
 condense_question = """Given the following conversation and a follow-up question, rephrase the follow-up question to be a standalone question.
 
 Chat History:
@@ -31,6 +33,8 @@ ANSWER_PROMPT = ChatPromptTemplate.from_template(answer)
 
 DEFAULT_DOCUMENT_PROMPT = PromptTemplate.from_template(template="{page_content}")
 
+=======
+>>>>>>> openai
 def _combine_documents(docs, document_prompt=DEFAULT_DOCUMENT_PROMPT, document_separator="\n\n"):
     doc_strings = [format_document(doc, document_prompt) for doc in docs]
     return document_separator.join(doc_strings)
@@ -38,7 +42,11 @@ def _combine_documents(docs, document_prompt=DEFAULT_DOCUMENT_PROMPT, document_s
 memory = ConversationBufferMemory(return_messages=True, output_key="answer", input_key="question")
 
 def get_streaming_chain(question: str, memory, llm, db):
+<<<<<<< HEAD
     retriever = db.as_retriever(search_kwargs={"k": 10})
+=======
+    retriever = db.as_retriever(search_kwargs={"k": DEFAULT_NUM_RETRIEVED_DOCS})
+>>>>>>> openai
     loaded_memory = RunnablePassthrough.assign(
         chat_history=RunnableLambda(lambda x: "\n".join(
             [f"{item['role']}: {item['content']}" for item in x["memory"]]
@@ -69,7 +77,11 @@ def get_streaming_chain(question: str, memory, llm, db):
     return final_chain.stream({"question": question, "memory": memory})
 
 def get_chat_chain(llm, db):
+<<<<<<< HEAD
     retriever = db.as_retriever(search_kwargs={"k": 10})
+=======
+    retriever = db.as_retriever(search_kwargs={"k": DEFAULT_NUM_RETRIEVED_DOCS})
+>>>>>>> openai
 
     loaded_memory = RunnablePassthrough.assign(
         chat_history=RunnableLambda(memory.load_memory_variables) | itemgetter("history"),

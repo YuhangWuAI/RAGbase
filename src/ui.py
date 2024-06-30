@@ -1,15 +1,14 @@
 import streamlit as st
 import os
-
 from langchain_community.llms import Ollama
 from document_loader import load_documents_into_database
 from model_utils import get_list_of_models
 from llm_chain import get_streaming_chain
 
-EMBEDDING_MODEL = "llama3:8b"
-PATH = "research"
+from config import DEFAULT_EMBEDDING_MODEL, DEFAULT_PATH, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP
 
-st.title("FinQA chatbot 🤖")
+st.title("FinQA Chatbot 🤖")
+
 
 if "list_of_models" not in st.session_state:
     st.session_state["list_of_models"] = get_list_of_models()
@@ -20,7 +19,8 @@ if st.session_state.get("ollama_model") != selected_model:
     st.session_state["ollama_model"] = selected_model
     st.session_state["llm"] = Ollama(model=selected_model)
 
-folder_path = st.sidebar.text_input("Enter the folder path:", PATH)
+
+folder_path = st.sidebar.text_input("Enter the folder path:", DEFAULT_PATH)
 
 if folder_path:
     if not os.path.isdir(folder_path):
@@ -29,7 +29,9 @@ if folder_path:
         if st.sidebar.button("Immigration rules"):
             if "db" not in st.session_state:
                 with st.spinner("Creating embeddings and loading documents into Chroma..."):
-                    st.session_state["db"] = load_documents_into_database(EMBEDDING_MODEL, folder_path)
+
+                    st.session_state["db"] = load_documents_into_database(DEFAULT_EMBEDDING_MODEL, folder_path, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP)
+
                 st.info("All set to answer questions!")
 else:
     st.warning("Please enter a folder path to load documents into the database.")

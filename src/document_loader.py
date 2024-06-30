@@ -6,12 +6,13 @@ from langchain_core.documents import Document
 import os
 from typing import List
 
-TEXT_SPLITTER = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 
-def load_documents_into_database(model_name: str, documents_path: str) -> Chroma:
+def load_documents_into_database(model_name: str, documents_path: str, chunk_size: int, chunk_overlap: int) -> Chroma:
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     print("Loading documents")
     raw_documents = load_documents(documents_path)
-    documents = TEXT_SPLITTER.split_documents(raw_documents)
+    documents = text_splitter.split_documents(raw_documents)
+
     print("Creating embeddings and loading documents into Chroma")
     db = Chroma.from_documents(documents, OllamaEmbeddings(model=model_name))
     return db
