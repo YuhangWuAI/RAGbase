@@ -1,5 +1,5 @@
 import sys
-from config import parse_arguments
+from config import parse_arguments, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP
 from model_utils import check_model_availability
 from document_loader import load_documents_into_database
 from llm_chain import get_chat_chain
@@ -16,7 +16,7 @@ def main() -> None:
         sys.exit()
 
     try:
-        db = load_documents_into_database(args.embedding_model, args.path)
+        db = load_documents_into_database(args.embedding_model, args.path, args.chunk_size, args.chunk_overlap)
     except FileNotFoundError as e:
         print(e)
         sys.exit()
