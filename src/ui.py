@@ -1,14 +1,15 @@
 import streamlit as st
 import os
+import logging
 from langchain_community.llms import Ollama
 from document_loader import load_documents_into_database
 from model_utils import get_list_of_models
 from llm_chain import get_streaming_chain
-
 from config import DEFAULT_EMBEDDING_MODEL, DEFAULT_PATH, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP
 
-st.title("FinQA Chatbot 🤖")
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+st.title("An immigration advisor chatbot 📚")
 
 if "list_of_models" not in st.session_state:
     st.session_state["list_of_models"] = get_list_of_models()
@@ -19,20 +20,22 @@ if st.session_state.get("ollama_model") != selected_model:
     st.session_state["ollama_model"] = selected_model
     st.session_state["llm"] = Ollama(model=selected_model)
 
-
 folder_path = st.sidebar.text_input("Enter the folder path:", DEFAULT_PATH)
 
 if folder_path:
     if not os.path.isdir(folder_path):
         st.error("The provided path is not a valid directory. Please enter a valid folder path.")
     else:
-        if st.sidebar.button("Immigration rules"):
+        if st.sidebar.button("Load Immigration rules"):
             if "db" not in st.session_state:
                 with st.spinner("Creating embeddings and loading documents into Chroma..."):
-
-                    st.session_state["db"] = load_documents_into_database(DEFAULT_EMBEDDING_MODEL, folder_path, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP)
-
-                st.info("All set to answer questions!")
+                    try:
+                        st.session_state["db"] = load_documents_into_database(DEFAULT_EMBEDDING_MODEL, folder_path, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP)
+                        st.info("Documents loaded into the database successfully!")
+                        logging.info("Documents loaded into the database successfully")
+                    except Exception as e:
+                        st.error(f"Error loading documents: {e}")
+                        logging.error(f"Error loading documents: {e}")
 else:
     st.warning("Please enter a folder path to load documents into the database.")
 
@@ -49,6 +52,12 @@ if prompt := st.chat_input("Question"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        stream = get_streaming_chain(prompt, st.session_state.messages, st.session_state["llm"], st.session_state["db"])
-        response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        try:
+            stream = get_streaming_chain(prompt, st.session_state.messages, st.session_state["llm"], st.session_state["db"])
+            response = st.write_stream(stream)
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.success("Response generated successfully!")
+            logging.info("Response generated successfully")
+        except Exception as e:
+            st.error(f"Error generating response: {e}")
+            logging.error(f"Error generating response: {e}")
