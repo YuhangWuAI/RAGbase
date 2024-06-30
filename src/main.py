@@ -1,9 +1,7 @@
 import sys
-<<<<<<< HEAD
-from config import parse_arguments
-=======
+
 from config import parse_arguments, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP
->>>>>>> openai
+
 from model_utils import check_model_availability
 from document_loader import load_documents_into_database
 from llm_chain import get_chat_chain
@@ -20,11 +18,9 @@ def main() -> None:
         sys.exit()
 
     try:
-<<<<<<< HEAD
-        db = load_documents_into_database(args.embedding_model, args.path)
-=======
+
         db = load_documents_into_database(args.embedding_model, args.path, args.chunk_size, args.chunk_overlap)
->>>>>>> openai
+
     except FileNotFoundError as e:
         print(e)
         sys.exit()
