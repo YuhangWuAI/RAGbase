@@ -14,13 +14,11 @@ st.title("FinQA Chatbot 🤖")
 if "list_of_models" not in st.session_state:
     st.session_state["list_of_models"] = get_list_of_models()
 
-# 选择嵌入模型
 selected_embedding_model = st.sidebar.selectbox("Select an embedding model:", st.session_state["list_of_models"])
 
 if st.session_state.get("embedding_model") != selected_embedding_model:
     st.session_state["embedding_model"] = selected_embedding_model
 
-# 选择生成模型
 selected_llm_model = st.sidebar.selectbox("Select a generation model:", st.session_state["list_of_models"])
 
 if st.session_state.get("ollama_model") != selected_llm_model:
