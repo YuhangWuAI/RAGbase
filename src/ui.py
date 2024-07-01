@@ -2,30 +2,33 @@ import streamlit as st
 import os
 import logging
 from langchain_community.llms import Ollama
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.llms.openai import OpenAI
 from document_loader import load_documents_into_database
 from model_utils import get_list_of_models
 from llm_chain import get_streaming_chain
-from config import DEFAULT_EMBEDDING_MODEL, DEFAULT_PATH, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP
+from config import DEFAULT_EMBEDDING_MODEL, DEFAULT_PATH, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP, DEFAULT_OPENAI_API_KEY, DEFAULT_OPENAI_API_BASE
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-st.title("An immigration advisor chatbot 📚")
+st.title("FinQA Chatbot 🤖")
 
 if "list_of_models" not in st.session_state:
-    st.session_state["list_of_models"] = get_list_of_models()
+    st.session_state["list_of_models"] = get_list_of_models() + ["OpenAI"]
 
-# 选择嵌入模型
 selected_embedding_model = st.sidebar.selectbox("Select an embedding model:", st.session_state["list_of_models"])
 
 if st.session_state.get("embedding_model") != selected_embedding_model:
     st.session_state["embedding_model"] = selected_embedding_model
 
-# 选择生成模型
-selected_llm_model = st.sidebar.selectbox("Select a LLM model:", st.session_state["list_of_models"])
+selected_llm_model = st.sidebar.selectbox("Select a generation model:", st.session_state["list_of_models"])
 
-if st.session_state.get("ollama_model") != selected_llm_model:
-    st.session_state["ollama_model"] = selected_llm_model
-    st.session_state["llm"] = Ollama(model=selected_llm_model)
+if st.session_state.get("llm_model") != selected_llm_model:
+    st.session_state["llm_model"] = selected_llm_model
+    if selected_llm_model == "OpenAI":
+        st.session_state["llm"] = OpenAI(openai_api_key=DEFAULT_OPENAI_API_KEY, openai_api_base=DEFAULT_OPENAI_API_BASE)
+    else:
+        st.session_state["llm"] = Ollama(model=selected_llm_model)
 
 folder_path = st.sidebar.text_input("Enter the folder path:", DEFAULT_PATH)
 
@@ -33,7 +36,7 @@ if folder_path:
     if not os.path.isdir(folder_path):
         st.error("The provided path is not a valid directory. Please enter a valid folder path.")
     else:
-        if st.sidebar.button("Load Immigration rules"):
+        if st.sidebar.button("Load FinQA data"):
             if "db" not in st.session_state:
                 with st.spinner("Creating embeddings and loading documents into Chroma..."):
                     try:

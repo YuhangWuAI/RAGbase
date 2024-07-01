@@ -2,10 +2,12 @@ import os
 import logging
 from typing import List
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader, JSONLoader
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
+from config import parse_arguments, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP, DEFAULT_OPENAI_API_KEY, DEFAULT_OPENAI_API_BASE
+args = parse_arguments()
 
 def load_documents_into_database(model_name: str, documents_path: str, chunk_size: int, chunk_overlap: int) -> Chroma:
     logging.info("Initializing text splitter")
@@ -16,7 +18,12 @@ def load_documents_into_database(model_name: str, documents_path: str, chunk_siz
     documents = text_splitter.split_documents(raw_documents)
     
     logging.info("Creating embeddings and loading documents into Chroma")
-    db = Chroma.from_documents(documents, OllamaEmbeddings(model=model_name))
+    if model_name == "OpenAI":
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=args.openai_key, openai_api_base=args.openai_base)
+    else:
+        embeddings = OllamaEmbeddings(model=model_name)
+    
+    db = Chroma.from_documents(documents, embeddings)
     
     logging.info("Documents loaded into Chroma successfully")
     return db
