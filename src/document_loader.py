@@ -29,7 +29,7 @@ def load_documents(path: str) -> List[Document]:
     loaders = {
         ".pdf": DirectoryLoader(path, glob="**/*.pdf", loader_cls=PyPDFLoader, show_progress=True, use_multithreading=True),
         ".md": DirectoryLoader(path, glob="**/*.md", loader_cls=TextLoader, show_progress=True),
-        ".json": JSONLoader(file_path="research/test.json", jq_schema='.data[]', text_content=False),
+        ".json": JSONLoader(file_path="research/demo_test.json", jq_schema='.data[]', text_content=False),
     }
 
     docs = []
