@@ -8,7 +8,7 @@ from document_loader import load_documents_into_database
 from model_utils import get_list_of_models
 from llm_chain import get_streaming_chain
 from config import DEFAULT_EMBEDDING_MODEL, DEFAULT_PATH, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP, DEFAULT_OPENAI_API_KEY, DEFAULT_OPENAI_API_BASE
-
+# logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 st.title("FinQA Chatbot 🤖")
