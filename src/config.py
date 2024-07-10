@@ -2,14 +2,14 @@ import argparse
 from langchain.prompts.prompt import PromptTemplate
 from langchain_core.prompts import ChatPromptTemplate
 
-DEFAULT_MODEL = "mistral"
-DEFAULT_EMBEDDING_MODEL = "llama3:8b"
+DEFAULT_MODEL = "OpenAI"
+DEFAULT_EMBEDDING_MODEL = "avr/sfr-embedding-mistral:latest"
 DEFAULT_PATH = "research"
 DEFAULT_CHUNK_SIZE = 1000
 DEFAULT_CHUNK_OVERLAP = 100
 DEFAULT_NUM_RETRIEVED_DOCS = 10
-DEFAULT_OPENAI_API_KEY = "sk-BIWqoUKgrFI6a5ar53E73fA468194104A6644f6d48Af32Da" 
-DEFAULT_OPENAI_API_BASE = "https://apikeyplus.com/v1" 
+DEFAULT_OPENAI_API_KEY = "sk-BIWqoUKgrFI6a5ar53E73fA468194104A6644f6d48Af32Da"
+DEFAULT_OPENAI_API_BASE = "https://apikeyplus.com/v1"
 
 CONDENSE_QUESTION_TEMPLATE = """Given the following conversation and a follow-up question, rephrase the follow-up question to be a standalone question.
 
@@ -34,6 +34,34 @@ Keep the answer as concise as possible.
 
 DOCUMENT_TEMPLATE = "{page_content}"
 
+EVALUATION_PROMPT_TEMPLATE = """
+### Instruction:
+Use the following pieces of context to answer the question at the end in a step-by-step manner showing the calculation steps clearly. The output should follow this format:
+[
+"operation(",
+"value1",
+"value2",
+")",
+"EOF"
+]
+
+For example:
+subtract("5829", "5735")
+EOF
+
+dont't try to add or delete any thing. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+## Research:
+{context}
+
+## Question:
+{question}
+
+## Answer (in step-by-step calculation):
+"""
+EVALUATION_PROMPT = ChatPromptTemplate.from_template(EVALUATION_PROMPT_TEMPLATE)
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run local LLM with RAG with Ollama.")
     parser.add_argument("-m", "--model", default=DEFAULT_MODEL, help="The name of the LLM model to use.")
@@ -43,6 +71,7 @@ def parse_arguments():
     parser.add_argument("--chunk_overlap", type=int, default=DEFAULT_CHUNK_OVERLAP, help="The chunk overlap for text splitting.")
     parser.add_argument("--openai_key", default=DEFAULT_OPENAI_API_KEY, help="OpenAI API key for embedding and generation.")
     parser.add_argument("--openai_base", default=DEFAULT_OPENAI_API_BASE, help="OpenAI API base URL for embedding and generation.")
+    parser.add_argument("--eval", action="store_true", help="Run evaluation mode to generate prediction file.")
     return parser.parse_args()
 
 CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(CONDENSE_QUESTION_TEMPLATE)

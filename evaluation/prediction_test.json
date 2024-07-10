@@ -1,0 +1,20 @@
+[
+    {
+        "id": "ETR/2016/page_23.pdf-2",
+        "predicted": [
+            "[",
+            "subtract(",
+            "2015 net revenue",
+            "2014 net revenue",
+            ")",
+            "EOF",
+            "]"
+        ]
+    },
+    {
+        "id": "INTC/2015/page_41.pdf-4",
+        "predicted": [
+            "EOF"
+        ]
+    }
+]

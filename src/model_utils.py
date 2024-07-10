@@ -17,6 +17,9 @@ def pull_model(name: str) -> None:
         current_digest = digest
 
 def is_model_available_locally(model_name: str) -> bool:
+    if model_name == "OpenAI":
+        # Skip checking for OpenAI model in Ollama
+        return True
     try:
         ollama.show(model_name)
         return True
@@ -27,6 +30,8 @@ def get_list_of_models() -> list[str]:
     return [model["name"] for model in ollama.list()["models"]]
 
 def check_model_availability(model_name: str) -> None:
+    if model_name == "OpenAI":
+        return  # Skip availability check for OpenAI model
     try:
         available = is_model_available_locally(model_name)
     except Exception:
